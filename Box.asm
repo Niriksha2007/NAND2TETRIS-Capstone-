@@ -1,0 +1,43 @@
+// Box.asm - Niriksha Tiwari, Roll No. 2501730353, K = 53
+// While any key is held, draw a 32x20 black box at rows 53..72, columns 0..31.
+// When the key is released, erase it. Start address = 16384 + 53*32 = 18080.
+(LOOP)
+    @KBD
+    D=M
+    @BLACK
+    D;JNE
+    @COLOR
+    M=0
+    @INIT
+    0;JMP
+(BLACK)
+    @COLOR
+    M=-1
+(INIT)
+    @18080
+    D=A
+    @ADDR
+    M=D
+    @20
+    D=A
+    @COUNT
+    M=D
+(ROW)
+    @COLOR
+    D=M
+    @ADDR
+    A=M
+    M=D
+    A=A+1
+    M=D
+    @32
+    D=A
+    @ADDR
+    M=M+D
+    @COUNT
+    M=M-1
+    D=M
+    @ROW
+    D;JGT
+    @LOOP
+    0;JMP

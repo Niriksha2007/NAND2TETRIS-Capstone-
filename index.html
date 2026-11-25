@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hack Computer Lab - Niriksha Tiwari</title>
+<style>
+:root{--bg:#33422a;--card:#fbf7ea;--ink:#26301c;--mut:#6b705c;--acc:#3f5a2c;--line:#d9d3bb}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:12px 24px;position:sticky;top:0;background:#2a3622;z-index:5}
+.brand{color:#f4efd9;font:600 19px Georgia,serif;letter-spacing:.04em}.brand small{display:block;font:11px ui-monospace,monospace;opacity:.7;letter-spacing:0}
+nav{display:flex;flex-wrap:wrap;gap:4px}
+nav button{border:0;border-radius:99px;padding:7px 16px;background:transparent;color:#e9e4cc;cursor:pointer;font:inherit}
+nav button.on{background:var(--card);color:var(--ink)}
+.badge{font:12px ui-monospace,monospace;color:#e9e4cc;border:1px solid #6b7a58;border-radius:8px;padding:4px 10px;text-align:right}
+main{max-width:1060px;margin:0 auto;padding:24px 16px 60px}
+section{display:none}section.on{display:block}
+h1,h2,h3{font-family:Georgia,serif;margin:.2em 0}h1{color:#f4efd9;font-size:2.1rem}.sub{color:#cfc9ad;max-width:70ch}
+.card{background:var(--card);border-radius:16px;padding:20px;margin:16px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.mark{float:right;font:12px ui-monospace,monospace;background:#ece6cf;padding:2px 8px;border-radius:6px}
+.btn{border:0;border-radius:99px;padding:8px 16px;cursor:pointer;font:inherit;background:var(--acc);color:#fff}
+.btn.alt{background:#ece6cf;color:var(--ink)}.btn.on{background:var(--ink);color:#fff}
+.btn:focus-visible,nav button:focus-visible{outline:2px solid #f4efd9;outline-offset:2px}
+pre,textarea{background:#26301c;color:#e6e2c8;border-radius:10px;padding:14px;font:12.5px/1.5 ui-monospace,monospace;overflow:auto;max-height:420px;width:100%;margin:8px 0;border:0;white-space:pre}
+textarea{height:300px;resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ok{color:#2f6b1f}.err{color:#a3321f}.mut{color:var(--mut)}
+canvas{width:100%;image-rendering:pixelated;background:#26301c;border-radius:10px;display:block}
+.two{display:grid;grid-template-columns:2fr 1fr;gap:16px}@media(max-width:800px){.two{grid-template-columns:1fr}}
+.reg{display:grid;grid-template-columns:1fr 1fr;gap:8px;font:13px ui-monospace,monospace}.reg div{background:#ece6cf;padding:8px;border-radius:8px}
+table{width:100%;font:12.5px ui-monospace,monospace;border-collapse:collapse}td{padding:6px 8px;border-bottom:1px solid var(--line)}
+</style></head><body>
+<header>
+ <div class="brand">Hack Computer Lab<small>Nand2Tetris - ETCNTC301 - KRMU</small></div>
+ <nav id="nav"></nav>
+ <div class="badge">Niriksha Tiwari<br>Roll 2501730353 - K = 53</div>
+</header>
+<main>
+<section id="home" class="on">
+ <h1>Nand2Tetris Capstone</h1>
+ <p class="sub">Built by Niriksha Tiwari (Roll No. 2501730353), B.Tech CSE (AI &amp; ML), Semester III. Each part below matches the lab evaluation breakdown. My parameter is K = 53.</p>
+ <div class="grid">
+  <div class="card"><span class="mark">2.5 Marks</span><h3>Part A: Hack Computer HDL</h3><p>Read CPU.hdl, Memory.hdl and Computer.hdl, with pin descriptions.</p><button class="btn" data-go="a">Open HDL sources</button></div>
+  <div class="card"><span class="mark">3.0 Marks</span><h3>Part B: Python Assembler</h3><p>Assemble Hack code in the browser: two passes, symbols, and duplicate-label detection (K mod 3 = 2).</p><button class="btn" data-go="b">Open assembler</button></div>
+  <div class="card"><span class="mark">2.5 Marks</span><h3>Part C: Box Program</h3><p>A 16-bit CPU emulator runs Box.hack. Hold a key to draw the 32x20 box at row 53, release to erase it.</p><button class="btn" data-go="c">Run emulator</button></div>
+ </div>
+ <div class="card"><h3>How the pieces connect</h3><p>Box.asm is assembled by the two-pass assembler into Box.hack (16-bit words). The emulator loads that ROM and runs it cycle by cycle. The CPU reads the keyboard at RAM[24576] and writes pixels to screen memory at RAM[16384..24575].</p></div>
+</section>
+
+<section id="a">
+ <h2 style="color:#f4efd9">Part A: Hack Computer HDL</h2>
+ <div class="card">
+  <div class="row" id="hdltabs"></div>
+  <pre id="hdl"></pre>
+  <div class="row"><button class="btn alt" id="hdlcopy">Copy</button><button class="btn" id="hdldl">Download</button></div>
+  <p class="mut">The ALU, ARegister, DRegister, PC, RAM16K, Screen, Keyboard and ROM32K chips are the built-in chips of the Nand2Tetris Hardware Simulator. Verify these files there with the official .tst/.cmp scripts; a browser cannot run the Java simulator.</p>
+ </div>
+</section>
+
+<section id="b">
+ <h2 style="color:#f4efd9">Part B: Python Assembler</h2>
+ <div class="card">
+  <div class="row"><span>Load program:</span><button class="btn alt" data-p="Box.asm">Box.asm</button><button class="btn alt" data-p="Add.asm">Add.asm</button><button class="btn alt" data-p="Dup.asm">Duplicate label test</button><span id="status" style="margin-left:auto"></span></div>
+  <div class="two"><div><h3>Assembly source</h3><textarea id="src" spellcheck="false"></textarea></div>
+  <div><h3>Machine code (.hack)</h3><pre id="hack" style="height:300px"></pre></div></div>
+  <h3>Symbol table</h3><pre id="syms" style="max-height:160px"></pre>
+  <p class="mut">The same logic is in assembler.py: <code>python assembler.py Box.asm</code> writes Box.hack.</p>
+ </div>
+</section>
+
+<section id="c">
+ <h2 style="color:#f4efd9">Part C: Box Program and Emulator</h2>
+ <div class="two">
+  <div class="card">
+   <h3>Screen (512 x 256)</h3>
+   <canvas id="scr" width="512" height="256"></canvas>
+   <div class="row" style="margin-top:12px">
+    <button class="btn alt" id="pause">Pause CPU</button><button class="btn alt" id="reset">Reset</button>
+    <button class="btn" id="hold">Hold to draw box</button>
+    <label>Speed <input type="range" id="speed" min="100" max="20000" step="100" value="5000"></label><span id="spv" class="mut"></span>
+   </div>
+   <p class="mut">Hold any key on your keyboard (or the button) to draw the box on rows 53 to 72, columns 0 to 31. Release to erase it.</p>
+  </div>
+  <div>
+   <div class="card"><h3>CPU registers</h3><div class="reg" id="regs"></div></div>
+   <div class="card"><h3>Screen memory monitor</h3><table id="mon"></table></div>
+  </div>
+ </div>
+</section>
+
+<section id="sub">
+ <h2 style="color:#f4efd9">Submission</h2>
+ <div class="card"><h3>Student details</h3>
+  <table><tr><td>Name</td><td>Niriksha Tiwari</td></tr><tr><td>Roll No.</td><td>2501730353</td></tr>
+  <tr><td>Programme</td><td>B.Tech CSE (AI &amp; ML), Semester III</td></tr>
+  <tr><td>Parameter K</td><td>53 (K mod 3 = 2: duplicate label detection)</td></tr>
+  <tr><td>Box</td><td>32 x 20 px at rows 53-72, start address RAM[18080]</td></tr></table></div>
+ <div class="card"><h3>Project files</h3><table id="files"></table></div>
+</section>
+</main>
+<script>
+const F={"CPU.hdl": "// Hack CPU - Niriksha Tiwari, Roll No. 2501730353\nCHIP CPU {\n    IN  inM[16], instruction[16], reset;\n    OUT outM[16], writeM, addressM[15], pc[15];\n\n    PARTS:\n    // A-register input: instruction (A-instr) or ALU output (C-instr)\n    Not(in=instruction[15], out=isA);\n    Mux16(a=aluOut, b=instruction, sel=isA, out=aIn);\n    Or(a=isA, b=instruction[5], out=loadA);\n    ARegister(in=aIn, load=loadA, out=A, out[0..14]=addressM);\n\n    // D-register\n    And(a=instruction[15], b=instruction[4], out=loadD);\n    DRegister(in=aluOut, load=loadD, out=D);\n\n    // ALU: y = A or M (a-bit = instruction[12])\n    Mux16(a=A, b=inM, sel=instruction[12], out=AM);\n    ALU(x=D, y=AM, zx=instruction[11], nx=instruction[10], zy=instruction[9],\n        ny=instruction[8], f=instruction[7], no=instruction[6],\n        out=aluOut, out=outM, zr=zr, ng=ng);\n    And(a=instruction[15], b=instruction[3], out=writeM);\n\n    // Jump logic: j1 (<0), j2 (=0), j3 (>0)\n    Not(in=zr, out=notZr);\n    Not(in=ng, out=notNg);\n    And(a=notZr, b=notNg, out=pos);\n    And(a=instruction[2], b=ng,  out=jlt);\n    And(a=instruction[1], b=zr,  out=jeq);\n    And(a=instruction[0], b=pos, out=jgt);\n    Or(a=jlt, b=jeq, out=jle);\n    Or(a=jle, b=jgt, out=jumpCond);\n    And(a=instruction[15], b=jumpCond, out=jump);\n\n    PC(in=A, load=jump, inc=true, reset=reset, out[0..14]=pc);\n}\n", "Memory.hdl": "// Hack Memory - Niriksha Tiwari, Roll No. 2501730353\n// 0-16383 RAM, 16384-24575 Screen, 24576 Keyboard\nCHIP Memory {\n    IN  in[16], load, address[15];\n    OUT out[16];\n\n    PARTS:\n    DMux4Way(in=load, sel=address[13..14], a=r1, b=r2, c=scr, d=kbd);\n    Or(a=r1, b=r2, out=loadRam);\n    RAM16K(in=in, load=loadRam, address=address[0..13], out=ramOut);\n    Screen(in=in, load=scr, address=address[0..12], out=screenOut);\n    Keyboard(out=kbdOut);\n    Mux4Way16(a=ramOut, b=ramOut, c=screenOut, d=kbdOut, sel=address[13..14], out=out);\n}\n", "Computer.hdl": "// Hack Computer - Niriksha Tiwari, Roll No. 2501730353\nCHIP Computer {\n    IN reset;\n\n    PARTS:\n    ROM32K(address=pc, out=instruction);\n    CPU(inM=memOut, instruction=instruction, reset=reset,\n        outM=outM, writeM=writeM, addressM=addressM, pc=pc);\n    Memory(in=outM, load=writeM, address=addressM, out=memOut);\n}\n", "Box.asm": "// Box.asm - Niriksha Tiwari, Roll No. 2501730353, K = 53\n// While any key is held, draw a 32x20 black box at rows 53..72, columns 0..31.\n// When the key is released, erase it. Start address = 16384 + 53*32 = 18080.\n(LOOP)\n    @KBD\n    D=M\n    @BLACK\n    D;JNE\n    @COLOR\n    M=0\n    @INIT\n    0;JMP\n(BLACK)\n    @COLOR\n    M=-1\n(INIT)\n    @18080\n    D=A\n    @ADDR\n    M=D\n    @20\n    D=A\n    @COUNT\n    M=D\n(ROW)\n    @COLOR\n    D=M\n    @ADDR\n    A=M\n    M=D\n    A=A+1\n    M=D\n    @32\n    D=A\n    @ADDR\n    M=M+D\n    @COUNT\n    M=M-1\n    D=M\n    @ROW\n    D;JGT\n    @LOOP\n    0;JMP\n", "Add.asm": "// Computes R0 = 2 + 3\n@2\nD=A\n@3\nD=D+A\n@R0\nM=D\n(END)\n@END\n0;JMP\n", "Dup.asm": "// K mod 3 = 2 -> assembler must reject duplicate labels\n(LOOP)\n@1\nD=A\n(LOOP)\n@2\nD=D+A\n", "Box.hack": "0110000000000000\n1111110000010000\n0000000000001000\n1110001100000101\n0000000000010000\n1110101010001000\n0000000000001010\n1110101010000111\n0000000000010000\n1110111010001000\n0100011010100000\n1110110000010000\n0000000000010001\n1110001100001000\n0000000000010100\n1110110000010000\n0000000000010010\n1110001100001000\n0000000000010000\n1111110000010000\n0000000000010001\n1111110000100000\n1110001100001000\n1110110111100000\n1110001100001000\n0000000000100000\n1110110000010000\n0000000000010001\n1111000010001000\n0000000000010010\n1111110010001000\n1111110000010000\n0000000000010010\n1110001100000001\n0000000000000000\n1110101010000111\n", "assembler.py": "\"\"\"Hack assembler (two-pass) - Niriksha Tiwari, Roll No. 2501730353, K = 53.\nUsage: python assembler.py Box.asm   ->  writes Box.hack\nDuplicate labels are rejected (K mod 3 = 2).\"\"\"\nimport sys, re\n\nCOMP = {'0':'101010','1':'111111','-1':'111010','D':'001100','A':'110000','!D':'001101',\n        '!A':'110001','-D':'001111','-A':'110011','D+1':'011111','A+1':'110111','D-1':'001110',\n        'A-1':'110010','D+A':'000010','D-A':'010011','A-D':'000111','D&A':'000000','D|A':'010101'}\nJMP = {'':'000','JGT':'001','JEQ':'010','JGE':'011','JLT':'100','JNE':'101','JLE':'110','JMP':'111'}\n\ndef assemble(src):\n    sym = {'SP':0,'LCL':1,'ARG':2,'THIS':3,'THAT':4,'SCREEN':16384,'KBD':24576}\n    sym.update({f'R{i}': i for i in range(16)})\n    prog, seen = [], set()\n    for n, l in enumerate(src.splitlines(), 1):          # pass 1: labels\n        l = re.sub(r'//.*', '', l).replace(' ', '').strip()\n        if not l: continue\n        m = re.fullmatch(r'\\((.+)\\)', l)\n        if m:\n            if m[1] in seen: raise SystemExit(f'Error line {n}: duplicate label ({m[1]})')\n            seen.add(m[1]); sym[m[1]] = len(prog)\n        else:\n            prog.append(l)\n    nxt, out = 16, []\n    for l in prog:                                        # pass 2: code\n        if l[0] == '@':\n            v = l[1:]\n            if not v.isdigit():\n                if v not in sym: sym[v] = nxt; nxt += 1\n                v = sym[v]\n            out.append(format(int(v), '016b'))\n        else:\n            dest, comp = l.split('=') if '=' in l else ('', l)\n            comp, _, j = comp.partition(';')\n            a = '1' if 'M' in comp else '0'\n            c = comp.replace('M', 'A')\n            c = {'A+D':'D+A','A&D':'D&A','A|D':'D|A'}.get(c, c)\n            d = ''.join('1' if x in dest else '0' for x in 'ADM')\n            out.append('111' + a + COMP[c] + d + JMP[j])\n    return out\n\nif __name__ == '__main__':\n    f = sys.argv[1]\n    open(f.rsplit('.', 1)[0] + '.hack', 'w').write('\\n'.join(assemble(open(f).read())) + '\\n')\n", "README.md": "# Nand2Tetris Capstone - Hack Computer Lab\n\n- Name: Niriksha Tiwari\n- Roll No.: 2501730353\n- Programme: B.Tech CSE (AI & ML), Semester III\n- Parameter K = 53 (K mod 3 = 2, so the assembler rejects duplicate labels)\n\n## Files\n- CPU.hdl, Memory.hdl, Computer.hdl : Hack hardware (Part A)\n- assembler.py : two-pass Hack assembler (Part B). Run: `python assembler.py Box.asm`\n- Box.asm / Box.hack : draws a 32x20 box at rows 53-72 while a key is held (Part C)\n- index.html : browser app with HDL viewer, assembler and CPU emulator\n"};
+const K=53,$=s=>document.querySelector(s);
+function dl(n,t){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t]));a.download=n;a.click()}
+function cp(t){try{navigator.clipboard.writeText(t).catch(()=>{})}catch(e){}}
+
+/* navigation */
+const pages=[['home','Home'],['a','Part A'],['b','Part B'],['c','Part C'],['sub','Submission']];
+function go(id){document.querySelectorAll('section').forEach(s=>s.classList.toggle('on',s.id===id));
+ [...$('#nav').children].forEach(b=>b.classList.toggle('on',b.dataset.id===id));scrollTo(0,0)}
+pages.forEach(([id,t])=>{const b=document.createElement('button');b.textContent=t;b.dataset.id=id;b.onclick=()=>go(id);$('#nav').append(b)});
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));
+go('home');
+
+/* Part A */
+let cur='CPU.hdl';
+function showHdl(n){cur=n;$('#hdl').textContent=F[n];[...$('#hdltabs').children].forEach(b=>b.classList.toggle('on',b.textContent===n))}
+['CPU.hdl','Memory.hdl','Computer.hdl'].forEach(n=>{const b=document.createElement('button');b.className='btn alt';b.textContent=n;b.onclick=()=>showHdl(n);$('#hdltabs').append(b)});
+$('#hdlcopy').onclick=()=>cp(F[cur]);$('#hdldl').onclick=()=>dl(cur,F[cur]);showHdl(cur);
+
+/* Part B: two-pass assembler */
+const C6={'0':'101010','1':'111111','-1':'111010','D':'001100','A':'110000','!D':'001101','!A':'110001','-D':'001111','-A':'110011','D+1':'011111','A+1':'110111','D-1':'001110','A-1':'110010','D+A':'000010','D-A':'010011','A-D':'000111','D&A':'000000','D|A':'010101'};
+const J3={'':'000',JGT:'001',JEQ:'010',JGE:'011',JLT:'100',JNE:'101',JLE:'110',JMP:'111'};
+function assemble(src){
+ const sym={SP:0,LCL:1,ARG:2,THIS:3,THAT:4,SCREEN:16384,KBD:24576},prog=[],errs=[],labels=new Set(),out=[];
+ for(let i=0;i<16;i++)sym['R'+i]=i;
+ src.split('\n').forEach((l,n)=>{l=l.replace(/\/\/.*/,'').replace(/\s+/g,'');if(!l)return;
+  const m=l.match(/^\((.+)\)$/);
+  if(m){if(labels.has(m[1]))errs.push('Line '+(n+1)+': duplicate label ('+m[1]+')');else{labels.add(m[1]);sym[m[1]]=prog.length}}
+  else prog.push([l,n+1])});
+ let nv=16;
+ for(const [l,n] of prog){
+  if(l[0]==='@'){let v=l.slice(1);
+   if(!/^\d+$/.test(v)){if(!(v in sym))sym[v]=nv++;v=sym[v]}
+   out.push((+v).toString(2).padStart(16,'0'))}
+  else{let [d,c]=l.includes('=')?l.split('='):['',l];let j;[c,j='']=c.split(';');
+   const a=c.includes('M')?'1':'0';c=c.replace(/M/g,'A');c={'A+D':'D+A','A&D':'D&A','A|D':'D|A'}[c]||c;
+   if(!(c in C6)||!(j in J3)){errs.push('Line '+n+': invalid instruction '+l);continue}
+   out.push('111'+a+C6[c]+['A','D','M'].map(x=>d.includes(x)?1:0).join('')+J3[j])}}
+ return{code:out,errs,sym};
+}
+function runAsm(){const r=assemble($('#src').value);
+ $('#hack').textContent=r.errs.length?r.errs.join('\n'):r.code.map((b,i)=>String(i).padStart(3)+'  '+b).join('\n');
+ $('#syms').textContent=Object.entries(r.sym).filter(([k])=>!/^R\d+$/.test(k)).map(([k,v])=>k.padEnd(8)+v).join('\n');
+ $('#status').innerHTML=r.errs.length?'<b class="err">'+r.errs.length+' error(s)</b>':'<b class="ok">Assembled cleanly: '+r.code.length+' instructions</b>'}
+document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{$('#src').value=F[b.dataset.p];runAsm()});
+$('#src').oninput=runAsm;$('#src').value=F['Box.asm'];runAsm();
+
+/* Part C: Hack CPU emulator */
+const RAM=new Int16Array(32768);let ROM=[],PC,A,D,cyc,paused=false,held=0;
+function reset(){RAM.fill(0);PC=A=D=cyc=0;ROM=assemble(F['Box.asm']).code.map(b=>parseInt(b,2))}
+function step(){const i=ROM[PC];if(i===undefined)return;
+ if(!(i&0x8000)){A=i;PC++;cyc++;return}
+ const x=D,y=(i&0x1000)?RAM[A&32767]:A,a0=A;
+ let o=({42:0,63:1,58:-1,12:x,48:y,13:~x,49:~y,15:-x,51:-y,31:x+1,55:y+1,14:x-1,50:y-1,2:x+y,19:x-y,7:y-x,0:x&y,21:x|y})[(i>>6)&63];
+ o=o<<16>>16;const d=(i>>3)&7,j=i&7;
+ if(d&1)RAM[a0&32767]=o;if(d&2)D=o;if(d&4)A=o;
+ PC=((j&4&&o<0)||(j&2&&o===0)||(j&1&&o>0))?(a0&32767):PC+1;cyc++}
+const cv=$('#scr'),g=cv.getContext('2d'),img=g.createImageData(512,256);
+function draw(){const p=img.data;
+ for(let r=0;r<256;r++)for(let w=0;w<32;w++){const v=RAM[16384+r*32+w];
+  for(let b=0;b<16;b++){const k=(r*512+w*16+b)*4,on=(v>>b)&1;
+   p[k]=on?240:38;p[k+1]=on?234:48;p[k+2]=on?210:28;p[k+3]=255}}
+ g.putImageData(img,0,0)}
+function ui(){const h=n=>(n&0xffff).toString(16).toUpperCase().padStart(4,'0');
+ $('#regs').innerHTML=[['PC',PC],['A',A],['D',D],['KBD',RAM[24576]]].map(([n,v])=>'<div>'+n+' = '+v+'</div>').join('')+'<div>Cycle #'+cyc+'</div><div>ROM '+(ROM[PC]!==undefined?(ROM[PC]).toString(2).padStart(16,'0'):'-')+'</div>';
+ const S=16384+K*32,E=S+19*32,rows=[['Row '+(K-1)+' end',S-1],['Row '+K+' w0',S],['Row '+K+' w1',S+1],['Row '+K+' w2',S+2],['Row '+(K+19)+' w0',E],['Row '+(K+19)+' w1',E+1],['Row '+(K+19)+' w2',E+2]];
+ $('#mon').innerHTML=rows.map(([n,a])=>'<tr><td>RAM['+a+']</td><td>'+n+'</td><td>'+RAM[a]+'</td></tr>').join('')}
+function frame(){if(!paused){const n=+$('#speed').value;for(let i=0;i<n;i++)step()}draw();ui();requestAnimationFrame(frame)}
+$('#speed').oninput=()=>$('#spv').textContent=$('#speed').value+' cycles/frame';$('#spv').textContent='5000 cycles/frame';
+$('#pause').onclick=e=>{paused=!paused;e.target.textContent=paused?'Resume CPU':'Pause CPU'};
+$('#reset').onclick=reset;
+const key=v=>{RAM[24576]=v||(held?65:0)};
+$('#hold').onpointerdown=()=>{held=1;key(65)};
+addEventListener('pointerup',()=>{if(held){held=0;key(0)}});
+addEventListener('keydown',e=>{if(e.target.tagName!=='TEXTAREA')RAM[24576]=e.keyCode||65});
+addEventListener('keyup',e=>{if(e.target.tagName!=='TEXTAREA')RAM[24576]=0});
+reset();frame();
+
+/* Submission */
+['CPU.hdl','Memory.hdl','Computer.hdl','Box.asm','Box.hack','assembler.py','README.md'].forEach(n=>{
+ const tr=document.createElement('tr');tr.innerHTML='<td>'+n+'</td><td>'+(F[n].length/1024).toFixed(1)+' KB</td><td style="text-align:right"><button class="btn alt">Copy</button> <button class="btn">Download</button></td>';
+ const [c,d]=tr.querySelectorAll('button');c.onclick=()=>cp(F[n]);d.onclick=()=>dl(n,F[n]);$('#files').append(tr)});
+</script></body></html>
